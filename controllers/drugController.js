@@ -2,6 +2,8 @@ const Drug = require('./../models/drug')
 const Category = require('./../models/category');
 const AppError = require('../utils/appError');
 
+const { spawn } = require("child_process");
+
 exports.getAllDrugs = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1; // Current page number
@@ -128,4 +130,27 @@ exports.deleteDrug = async (req, res) => {
         err.message = "error deleting drug";
         next(err);
     }
+}
+
+exports.searchByImage = async (req, res) => {
+    const imagePath = req.body.imagePath;
+    const pythonProcess = spawn("python", ['ocr.py', imagePath]);
+
+    let result = "";
+    pythonProcess.stdout.on("data", (data) => {
+        result += data.toString();
+    });
+
+    pythonProcess.on("close", (code) => {
+        if (code === 0) {
+            res.json({ result: JSON.parse(result.replace("Extracted text:", "")) });
+        } else {
+
+            res.status(500).json({ error: "An error occurred while processing the data." });
+        }
+    });
+
+    pythonProcess.stderr.on("data", (data) => {
+        console.error(`Error from Python script: ${data.toString()}`);
+    });
 }

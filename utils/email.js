@@ -15,7 +15,7 @@ const sendEmail = async options => {
 
     const mailOptions = {
         from: {
-            name: 'MediParm',
+            name: 'MediPharm',
             address: process.env.EMAIL
         },
         to: options.email,
