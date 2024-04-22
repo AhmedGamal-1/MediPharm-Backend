@@ -9,6 +9,7 @@ const userRouter = require('./routes/userRoutes');
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 app.use(cors());
+app.use('/images', express.static('images'));
 
 
 app.use('/api/v1/drugs', drugRouter);
