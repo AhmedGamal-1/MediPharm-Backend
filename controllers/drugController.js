@@ -147,7 +147,7 @@ exports.searchByImage = async (req, res) => {
         result += data.toString();
     });
 
-    pythonProcess.on("close", (code) => {
+    pythonProcess.on("close", async (code) => {
         if (code === 0) {
             const extractedText = result.replace("Extracted text:", "").trim();
             const extractedTextList = extractedText.substring(1, extractedText.length - 1).split(", ");
@@ -155,13 +155,20 @@ exports.searchByImage = async (req, res) => {
 
             // Filter out entries starting with symbols or numbers
             const filteredTextList = formattedTextList.filter(text => {
-                // Check if the first character is a letter
-                return /^[a-zA-Z]/.test(text);
+                // Check if the first character is a letter and the string is at least three characters long
+                return /^[a-zA-Z].{2,}$/.test(text);
             });
 
-            res.json({ result: filteredTextList });
+
+            //get drug based on the extracted text
+            const regexList = filteredTextList.map(term => new RegExp(`^${term}\\b`, 'i'));
+
+            // Querying the database using the regular expressions
+            const drugs = await Drug.find({ name: { $in: regexList } });
+            return res.json({ count: drugs.length, result: drugs });
+
         } else {
-            res
+            return res
                 .status(500)
                 .json({ error: "An error occurred while processing the data." });
         }
