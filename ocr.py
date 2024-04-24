@@ -3,8 +3,9 @@ import easyocr
 import sys
 
 
+
 def ocr(image_path):
-    reader = easyocr.Reader(['en'])
+    reader = easyocr.Reader(['en'], gpu=True)
 
     # Load and preprocess the image
     query_image = cv2.imread(image_path)
@@ -15,9 +16,11 @@ def ocr(image_path):
     # Extract and lowercase the text
     extracted_text = [detection[1].lower() for detection in results]
 
+
     return extracted_text
 
 if __name__ == "__main__":
     image_path = sys.argv[1]
     extracted_text = ocr(image_path)
     print("Extracted text:", extracted_text)
+
