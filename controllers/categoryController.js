@@ -1,5 +1,5 @@
 const CategoryModel = require("../models/category");
-
+ 
 exports.gellAllCategories = async (req, res) => {
     try {
         const category = await CategoryModel.find();
